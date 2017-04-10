@@ -1,7 +1,8 @@
-pub mod coordinates;
-pub mod geometry;
-pub mod layout;
-pub mod hexcell;
+mod coordinates;
+mod geometry;
+mod layout;
 
 
-pub use coordinates::Coordinates;
+pub use coordinates::{Coordinates, EdgeCoordinates};
+pub use geometry::{Point, PointPair};
+pub use layout::{Layout, POINTY_TOP, FLAT_TOP};

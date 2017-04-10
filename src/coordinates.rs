@@ -9,7 +9,7 @@ use std::ops::{Add, Sub, Mul};
 //   |
 //   v
 //   r
-#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy, Hash)]
 pub struct Coordinates {
 	pub q: i32, // column
 	pub r: i32, // row
@@ -79,6 +79,27 @@ impl Coordinates {
             interpolate(self.q as f64 + 1e-6, rhs.q as f64 + 1e-6, i as f64 / len as f64),
             interpolate(self.r as f64, rhs.r as f64, i as f64 / len as f64),
             )).collect::<Vec<Coordinates>>()
+    }
+
+    pub fn adjacent_edge(&self, i: usize) -> Result<EdgeCoordinates, String> {
+        match i {
+            0 => Ok(EdgeCoordinates { coord: self.clone(), index: 0 }),
+            1 => Ok(EdgeCoordinates { coord: self.clone(), index: 1 }),
+            2 => Ok(EdgeCoordinates { coord: self.clone(), index: 2 }),
+            3 => Ok(EdgeCoordinates { coord: self.neighbour(3).unwrap(), index: 0 }),
+            4 => Ok(EdgeCoordinates { coord: self.neighbour(4).unwrap(), index: 1 }),
+            5 => Ok(EdgeCoordinates { coord: self.neighbour(5).unwrap(), index: 2 }),
+            _ => Err(format!("Invalid edge index: {}", i))
+        }
+    }
+
+    pub fn adjacent_edges(&self) -> Vec<EdgeCoordinates> {
+        vec![EdgeCoordinates { coord: self.clone(), index: 0 },
+             EdgeCoordinates { coord: self.clone(), index: 1 },
+             EdgeCoordinates { coord: self.clone(), index: 2 },
+             EdgeCoordinates { coord: self.neighbour(3).unwrap(), index: 0 },
+             EdgeCoordinates { coord: self.neighbour(4).unwrap(), index: 1 },
+             EdgeCoordinates { coord: self.neighbour(5).unwrap(), index: 2 }]
     }
 }
 
@@ -166,6 +187,14 @@ impl<'a> Mul<i32> for &'a Coordinates {
     }
 }
 
+
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
+pub struct EdgeCoordinates{
+    pub coord: Coordinates,
+    pub index: usize
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -185,6 +214,23 @@ mod tests {
         assert_eq!(neighbours, expected);
         let expected = Err("Invalid direction: 6".into());
         assert_eq!(c.neighbour(6), expected);
+    }
+
+    #[test]
+    fn adjacent_edge() {
+        let c = Coordinates::at(0, 0);
+        let n0 = c.neighbour(0).unwrap();
+        let n1 = c.neighbour(1).unwrap();
+        let n2 = c.neighbour(2).unwrap();
+        let n3 = c.neighbour(3).unwrap();
+        let n4 = c.neighbour(4).unwrap();
+        let n5 = c.neighbour(5).unwrap();
+        assert_eq!(c.adjacent_edge(0), n0.adjacent_edge(3));
+        assert_eq!(c.adjacent_edge(1), n1.adjacent_edge(4));
+        assert_eq!(c.adjacent_edge(2), n2.adjacent_edge(5));
+        assert_eq!(c.adjacent_edge(3), n3.adjacent_edge(0));
+        assert_eq!(c.adjacent_edge(4), n4.adjacent_edge(1));
+        assert_eq!(c.adjacent_edge(5), n5.adjacent_edge(2));
     }
 
     #[test]
