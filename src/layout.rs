@@ -91,8 +91,8 @@ impl Layout {
         let center = self.center_of_hex(c);
         let x1 = center.x + self.vertex_offset(3).x;
         let x2 = center.x + self.vertex_offset(0).x;
-        let y1 = center.y + self.vertex_offset(4).y;
-        let y2 = center.y + self.vertex_offset(1).y;
+        let y1 = center.y + self.vertex_offset(2).y;
+        let y2 = center.y + self.vertex_offset(5).y;
         [x1, y1, x2-x1, y2-y1]
     }
 
